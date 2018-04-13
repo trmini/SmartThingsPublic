@@ -334,25 +334,25 @@ def setSoundMode(cmd) {
 
 //QUICK MODES
 def q1() {
-    setQuickMode("1")
+    setQuickMode(1)
 }
 
 def q2() {
-    setQuickMode("2")
+    setQuickMode(2)
 }
 
 def q3() {
-    setQuickMode("3")
+    setQuickMode(3)
 }
 
 def q4() {
-    setQuickMode("4")
+    setQuickMode(4)
 }
 
 def setQuickMode(cmd) {
     //log.debug "Setting quick input to '${cmd}'"
     syncQTiles(cmd)
-    request("cmd0=PutZone_InputFunction%2F"+cmd)
+    request("cmd0=PutUserMode%2FQuick%2F"+cmd)
 }
 
 def poll() {
@@ -360,34 +360,28 @@ def poll() {
     refresh()
 }
 
-def inputMap = [
-    'SAT/CBL':"cbl",
-    'TV':"tv",
-    'BD':"bd",
-    'DVD':"dvd",
-    'MPLAY':"mp",
-    'BT':"bt",
-    'GAME':"game"
-    ]
 def syncTiles(cmd) {
-    for (input in inputMap) {
-        (input == cmd) ? turnOn(input.value) : turnOff(input.value)
+    def inputMap = [
+            cbl:    "SAT/CBL",
+            tv:     "TV",
+            bd:     "BD",
+            dvd:    "DVD",
+            mp:     "MPLAY",
+            bt:     "BT",
+            game:   "GAME"
+    ]
+
+    inputMap.each { input ->
+        update(input.key, (input.value == cmd) ? "ON" : "OFF")
     }
 }
 
-def quickInputs = ["1", "2", "3", "4"]
-def syncQTiles(cmd){
-    for (input in quickInputs) {
-        (input == cmd) ? turnOn(input) : turnOff(input)
+def syncQTiles(cmd) {
+    def quickInputs = [1, 2, 3, 4]
+
+    quickInputs.each {input ->
+        update("q" + input, (input == cmd) ? "ON" : "OFF")
     }
-}
-
-def turnOn(controlName) {
-    update(controlName, "ON")
-}
-
-def turnOff(controlName) {
-    update(controlName, "OFF")
 }
 
 def update(controlName, controlState) {
@@ -418,7 +412,6 @@ def request(body) {
             'body': body,
             'headers': [ HOST: "$destIp:$destPort" ]
         )
-
     hubAction
 }
 
@@ -433,7 +426,6 @@ def request2(body) {
             'body': body,
             'headers': [ HOST: "$destIp:$destPort" ]
         )
-
     hubAction
 }
 
@@ -448,6 +440,6 @@ private String convertPortToHex(port) {
     return hexport
 }
 
-def getVersionTxt(){
+def getVersionTxt() {
     return "3.1"
 }
